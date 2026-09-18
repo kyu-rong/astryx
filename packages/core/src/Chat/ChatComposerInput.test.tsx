@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import {ChatComposer} from './ChatComposer';
 import {useChatComposerContext} from './ChatContext';
 import {ChatComposerInput} from './ChatComposerInput';
+import {InternationalizationProvider} from '../i18n';
 import type {
   ChatComposerTrigger,
   ChatComposerInputHandle,
@@ -1466,6 +1467,97 @@ describe('ChatComposerInput', () => {
       fireEvent.keyDown(textbox, {key: 'ArrowDown'});
 
       expect(spy.mock.calls.length).toBeGreaterThan(callsAfterOpen);
+    });
+  });
+
+  describe('trigger menu i18n', () => {
+    // The menu layer is a `[popover]`; jsdom has no popover semantics, so
+    // role queries see it as hidden. Reach it through aria-controls, as the
+    // hover-scrolling tests do.
+    function menuFor(textbox: HTMLElement): HTMLElement {
+      return document.getElementById(textbox.getAttribute('aria-controls')!)!;
+    }
+
+    function typeTrigger(textbox: HTMLElement, text: string) {
+      textbox.focus();
+      const textNode = document.createTextNode(text);
+      textbox.appendChild(textNode);
+      const sel = window.getSelection()!;
+      const range = document.createRange();
+      range.setStart(textNode, text.length);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      fireEvent.input(textbox);
+    }
+
+    afterEach(() => {
+      document
+        .querySelectorAll('span[data-astryx-trigger-anchor]')
+        .forEach(el => el.remove());
+    });
+
+    it('localizes the default empty-state text through the i18n catalog', async () => {
+      render(
+        <InternationalizationProvider
+          locale="fr"
+          overrides={{
+            fr: {
+              '@astryx.chatTriggerMenu.emptySearchResults': 'Aucun résultat',
+            },
+          }}>
+          <ChatComposerInput triggers={[createMentionTrigger()]} />
+        </InternationalizationProvider>,
+      );
+      const textbox = screen.getByRole('combobox');
+      typeTrigger(textbox, '@zzz');
+      await waitFor(() => {
+        expect(menuFor(textbox)).toHaveTextContent('Aucun résultat');
+      });
+    });
+
+    it('localizes the default loading text through the i18n catalog', async () => {
+      const pending = createMentionTrigger({
+        // Never resolves: the menu stays in its loading state.
+        searchSource: {
+          search: async () => new Promise<SearchableItem[]>(() => {}),
+        },
+      });
+      render(
+        <InternationalizationProvider
+          locale="fr"
+          overrides={{fr: {'@astryx.chatTriggerMenu.loading': 'Recherche…'}}}>
+          <ChatComposerInput triggers={[pending]} />
+        </InternationalizationProvider>,
+      );
+      const textbox = screen.getByRole('combobox');
+      typeTrigger(textbox, '@a');
+      await waitFor(() => {
+        expect(menuFor(textbox)).toHaveTextContent('Recherche…');
+      });
+    });
+
+    it('keeps consumer-supplied empty text over the localized default', async () => {
+      render(
+        <InternationalizationProvider
+          locale="fr"
+          overrides={{
+            fr: {
+              '@astryx.chatTriggerMenu.emptySearchResults': 'Aucun résultat',
+            },
+          }}>
+          <ChatComposerInput
+            triggers={[
+              createMentionTrigger({emptySearchResultsText: 'Nobody found'}),
+            ]}
+          />
+        </InternationalizationProvider>,
+      );
+      const textbox = screen.getByRole('combobox');
+      typeTrigger(textbox, '@zzz');
+      await waitFor(() => {
+        expect(menuFor(textbox)).toHaveTextContent('Nobody found');
+      });
     });
   });
 });

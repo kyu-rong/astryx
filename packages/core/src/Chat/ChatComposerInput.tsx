@@ -145,9 +145,9 @@ export type ChatComposerTrigger = {
    * Used when loading a previous message for editing.
    */
   deserialize?: (value: string) => ChatComposerToken | null;
-  /** Text shown when no results found. @default 'No results' */
+  /** Empty-state text of the trigger menu. @default a translated 'No results' from the i18n catalog */
   emptySearchResultsText?: string;
-  /** Text shown during async search. @default 'Searching\u2026' */
+  /** Loading-state text of the trigger menu during async search. @default a translated 'Searching\u2026' from the i18n catalog */
   loadingText?: string;
   /** Accessible label for the menu. @default 'Suggestions' */
   menuLabel?: string;

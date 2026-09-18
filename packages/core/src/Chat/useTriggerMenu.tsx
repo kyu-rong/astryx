@@ -639,8 +639,11 @@ export function useTriggerMenu(
 
   const renderMenu = useCallback((): ReactNode => {
     const trigger = state.activeTrigger;
-    const emptyText = trigger?.emptySearchResultsText ?? 'No results';
-    const loadingText = trigger?.loadingText ?? 'Searching\u2026';
+    const emptyText =
+      trigger?.emptySearchResultsText ??
+      t('@astryx.chatTriggerMenu.emptySearchResults');
+    const loadingText =
+      trigger?.loadingText ?? t('@astryx.chatTriggerMenu.loading');
 
     let listContent: ReactNode;
     if (state.isLoading) {

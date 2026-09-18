@@ -1015,6 +1015,14 @@
     "defaultMessage": "Suggestions",
     "description": "Screen-reader-only fallback label for the popover listbox opened by a trigger character (`@`, `/`) in the chat composer when the trigger provides no specific label."
   },
+  "@astryx.chatTriggerMenu.emptySearchResults": {
+    "defaultMessage": "No results",
+    "description": "Fallback empty-state text inside the chat composer's trigger menu (opened by `@`, `/`) when the current query matches nothing and the trigger supplies no `emptySearchResultsText`. Neutral tone, not error-y. Kept separate from `typeahead.emptySearchResults` — the wording differs and translations may diverge."
+  },
+  "@astryx.chatTriggerMenu.loading": {
+    "defaultMessage": "Searching…",
+    "description": "Fallback loading-state text inside the chat composer's trigger menu while an async search is in flight and the trigger supplies no `loadingText`. Present-progressive form; the trailing ellipsis is the single … character."
+  },
   "@astryx.citation.label": {
     "defaultMessage": "Citation {number}: {title}",
     "description": "Screen-reader-only accessible name for a Citation chip (a small numbered link to a source). Example: `Citation 1: OpenAI research paper`. Reorder freely."
